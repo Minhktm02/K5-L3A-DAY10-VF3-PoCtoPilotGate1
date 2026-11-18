@@ -252,7 +252,8 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
 |---|---|---|---|
 | | Kỹ thuật | | |
-| | Kinh doanh | | |
+| Một ngày sale, trợ lý tự hoàn liên tục cho các ca khai khống số ngày trễ (kiểu `T-002@55`: khách khai 5 ngày, tracking ghi 2 ngày, vẫn hoàn 20.000đ). Tổng hoàn tự động vượt ngân sách 2.000.000đ/ngày của Finance mà không ai được báo, Finance rút ngân sách và tắt trợ lý. | Kinh doanh | Có. Lần chạy `R-base-before-20261118-155606-bd5d41`: `wrongful_refund_vnd` = 20.000đ, hoàn sai ngày tệ nhất 20.000đ, ở mốc base chưa có trần ngày của bàn ("trần bàn đặt: chưa đặt"). Trace `T-002@55` bước 03 `model_override`. | **Thành cổng (config, đã đặt):** `business.daily_refund_cap_vnd = 1500000`, khoản vượt trần chuyển NV-HANH. **Đề xuất cổng code cho Kỹ sư cổng:** `write_gate` khi `tool == "issue_refund"` so số ngày trễ dùng để tính tiền với `tracking.db_delay_days`, lệch thì `escalate` (nhãn T-002 chấp nhận `alt_escalate`). |
+| Sau khi REFUND-v4 (01/12/2026) hạ hạn mức tự động từ 200.000đ xuống 100.000đ, đơn giá trị cao ở kho DN và đơn sỉ HCM-B2B gần như ca nào cũng phải chuyển người. Mỗi ca chuyển tốn 10.000đ, bằng làm tay, nên chi phí ở các kho này vượt làm tay và ROI cả pilot tụt dưới 0,4. | Kinh doanh | Có một phần. Cùng lần chạy: `escalation_rate` 0,2273, đã sát ngưỡng 0,25. Kho DN tốn 4.586đ/ticket, gấp khoảng 2,3 lần HN (1.993đ) và 7,8 lần CT (590đ). Ticket không tìm thấy đơn (kho "?", T-018) tốn 10.359đ, đắt hơn làm tay. | **Vào risk register** (chưa thành cổng vì base vẫn đạt ROI 1,34 ≥ 0,4). Đường lui đã chuẩn bị: `business.pilot_scope` chuyển `warehouse` bỏ DN / HCM-B2B khi khối "theo kho và hãng" báo kho đắt hơn làm tay. Xem lại ngày 2026-11-30. |
 | | Con người và vận hành | | |
 | | Pháp lý | | |
 | | | | |
