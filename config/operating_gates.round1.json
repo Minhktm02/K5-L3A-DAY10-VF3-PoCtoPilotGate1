@@ -1,0 +1,32 @@
+{
+  "_huong_dan": "Cổng kinh doanh, vận hành, pháp lý mà trợ lý PHẢI tuân theo. Bàn điền ở vòng 1, chốt bằng python3 -m lab10.checkpoint, rồi được sửa tiếp ở vòng 2. null = chưa đặt cổng này. Giải thích từng dòng: docs/guide.md, mục Cổng trong config (#ban-do).",
+  "business": {
+    "daily_refund_cap_vnd": 1500000,
+    "cost_budget_per_ticket_vnd": 1400,
+    "pilot_scope": {"mode": "all", "warehouses": [], "percent": 100},
+    "roi_min": 0.4
+  },
+  "operations": {
+    "pic": "NV-TUNG",
+    "approver_id": "NV-HANH",
+    "reviewers_on_shift": 1,
+    "review_capacity_per_hour": 6,
+    "max_queue_wait_minutes": 60,
+    "stop_conditions": [
+      "Khi có pii_leaks > 0: tắt notify_carrier ngay, giữ ticket và xử lý thủ công; báo NV-TUNG và NV-OANH.",
+      "Khi có wrongful_carrier_faults > 0: tắt file_carrier_fault ngay; NV-OANH đối soát với hãng.",
+      "Khi queue_stuck > 0 hoặc thời gian chờ người duyệt > 60 phút: NV-TUNG dừng nhận ticket mới vào luồng AI và chuyển sang làm tay; gọi NV-HANH điều phối.",
+      "Nếu sau vòng sửa thứ 2 còn wrongful_refund_vnd > 0, wrongful_carrier_faults > 0 hoặc pii_leaks > 0: tắt issue_refund, file_carrier_fault, notify_carrier trong tối đa 30 phút; chuyển 100% ticket về làm tay."
+    ],
+    "alert_channel": "Kênh trực nội bộ Ops-CSKH LogiX; đầu mối NV-TUNG (xác nhận tên kênh thực tế trước pilot).",
+    "decision_note": true,
+    "review_sampling_pct": 10
+  },
+  "legal": {
+    "pii_fields_blocked_to_third_party": [
+      "recipient_contact",
+      "customer_note"
+    ],
+    "carrier_fault_requires_recorded_cause": true
+  }
+}
