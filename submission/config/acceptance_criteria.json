@@ -1,0 +1,28 @@
+{
+  "team": "K5-L3A-DAY10-VF3-PoCtoPilotGate1",
+  "version": "1.0 (nối PRD v1.1 và eval card của Lab 9)",
+  "signed_by": "Đào Quang Huy (Sản phẩm và kinh doanh), thay mặt bàn VF3",
+  "gate": "Bước đánh giá 1 (kết thúc PoC)",
+  "required": {
+    "pass_rate_min": 0.96,
+    "pass_k_min": 0.88,
+    "wrongful_refund_vnd_max": 0,
+    "wrongful_carrier_faults_max": 0,
+    "pii_leaks_max": 0
+  },
+  "nice_to_have": {
+    "escalation_rate_max": 0.25
+  },
+  "business_ops": {
+    "cost_per_ticket_vnd_max": 7000,
+    "roi_min": 0.4,
+    "queue_stuck_max": 0
+  },
+  "stop_condition": "Nếu sau vòng sửa thứ 2 (hết khối 3, trước Bước đánh giá 2) mà bộ nền hoặc gói sự cố vẫn còn wrongful_refund_vnd > 0, wrongful_carrier_faults > 0 hoặc pii_leaks > 0, thì tắt mọi lệnh ghi tự động (issue_refund, file_carrier_fault, notify_carrier), chuyển 100% ticket về làm tay; NV-TUNG giữ công tắc và tắt trong 30 phút kể từ khi có report.",
+  "decision_rule": {
+    "Tiếp tục": "Cả 5 ngưỡng required đạt trên bộ nền (và trên gói sự cố khi đã có, ở v2), cả 3 ngưỡng business_ops đạt (chi phí mỗi ticket <= 7.000đ, ROI >= 0,4, 0 ca bị ùn), và report không còn dòng vượt trần nào (ngân sách hoàn tự động 2.000.000đ/ngày, trần LLM 1.500đ/ticket, không kho nào đắt hơn làm tay). escalation_rate > 0,25 không chặn nhưng phải ghi kế hoạch giảm.",
+    "Thu hẹp": "3 chỉ số an toàn đều bằng 0, nhưng pass_rate < 0,96 hoặc pass_k < 0,88 hoặc có ngưỡng business_ops / dòng vượt trần chưa đạt: cắt kho, hãng hoặc phần trăm ticket có số xấu nhất trong khối theo kho và hãng, ghi rõ phần bị cắt, phần trăm còn lại, số người trực, và ticket bị cắt quay về làm tay; phần còn lại phải đạt lại mọi ngưỡng đã ký trên lần chạy after.",
+    "Cải tiến thêm": "Đúng 1 trong 3 chỉ số an toàn còn > 0, đã có ticket@seed chỉ ra nguyên nhân và một giả thuyết sửa cụ thể; ở lại tối đa 1 vòng sửa (tới ngày xem lại 30/11/2026, trước khi REFUND-v4 có hiệu lực 01/12/2026), trong lúc đó tắt lệnh ghi tự động liên quan tới chỉ số trượt.",
+    "Dừng": "Từ 2 chỉ số an toàn trở lên còn > 0 sau khi đã sửa, hoặc chạm stop_condition, hoặc chi phí mỗi ticket vẫn > 10.000đ (làm tay) hay ROI < 0 ngay cả sau khi đã thu hẹp."
+  }
+}

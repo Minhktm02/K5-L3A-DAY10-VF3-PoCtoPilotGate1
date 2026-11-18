@@ -1,16 +1,16 @@
 {
-  "team": "VF3",
+  "team": "K5-L3A-DAY10-VF3-PoCtoPilotGate1",
   "members": [
     "TruongVietCong-2A202603585",
     "KhuatTienMinh-2A202603616",
     "DaoQuangHuy-2A202603642"
   ],
-  "incident": "",
-  "decision_v1": "",
-  "decision_v2": "",
+  "incident": "S3",
+  "decision_v1": "Tiếp tục",
+  "decision_v2": "Tiếp tục",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+    "environment_assumption": "Thiết kế cổng của đội giả định bảng `policies` luôn được Finance cập nhật bản ghi chính sách mới trước ngày hiệu lực và trường `parcels[].delay_cause` trong tracking DB được điểm phát nhập đúng sự thật (không nhập nhầm `CARRIER` khi thực tế trễ do bão `FORCE_MAJEURE`), nhưng ngoài thực tế thao tác nhập liệu ở kho vùng bão rất dễ sai hoặc trễ.",
+    "reduce_or_prevent": "Các cổng chặn trong `lab10/guards.py` và `config/operating_gates.json` thực sự NGĂN hẳn 3 nhánh lỗi nội bộ (áp sai chính sách do quên gạt `index_active`, tự quy lỗi hãng khi `delay_cause` trống `null`, và vượt trần 2 lỗi tự động/hãng/ngày) vì đối chiếu trực tiếp nguồn sự thật DB trước lệnh ghi; nhưng chỉ GIẢM khả năng (không ngăn tuyệt đối) trước rủi ro bản thân tracking DB bị nhập sai `delay_cause` hoặc cộng dồn vượt mốc đình chỉ 7 ngày (cần kiểm mẫu 10% và đối soát tuần của NV-OANH bù vào).",
+    "measure_in_pilot": "Trong tuần đầu pilot thật tại 2 depot trước Gate 2 (`2026-12-09`), cần đo lại 4 chỉ số thực tế gồm tỉ lệ sai lệch khi đối soát mã `delay_cause` giữa tracking DB và khiếu nại ngược của hãng (đặc biệt mùa bão), số lỗi tích luỹ 7 ngày lăn trên từng hãng so với `suspend_after_strikes_7d`, thời gian chờ hàng chờ thực tế của NV-HANH ở giờ cao điểm khi chạy dưới hạn mức 100.000đ của `REFUND-v4`, và chi phí thực/ticket so với ngưỡng 7.000đ và ROI ≥ 0,4."
   }
 }

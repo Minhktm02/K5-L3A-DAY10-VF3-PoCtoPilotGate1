@@ -54,12 +54,16 @@ def _valid_approval(ctx, approval_id: str | None, ticket_id: str, order_id: str,
 
 
 def pre_guard(ctx):
-    # Cổng 1 (vòng 1): ghim đúng phiên bản chính sách đang hiệu lực theo ngày as_of,
-    # tránh phụ thuộc cờ index_active do người bật tay khi chính sách đổi phiên bản.
-    pol = H.effective_policy(ctx.tools.lookup_policies(), ctx.as_of)
+    # Cổng 1 (vòng 1 + nâng cấp ghi nhận drift ở vòng 2): ghim đúng phiên bản chính sách đang hiệu lực
+    # theo ngày as_of, tránh phụ thuộc cờ index_active do người bật tay khi chính sách đổi phiên bản.
+    policies = ctx.tools.lookup_policies()
+    pol = H.effective_policy(policies, ctx.as_of)
     if pol is None:
         ctx.log("no_effective_policy", as_of=ctx.as_of)
         return Verdict.escalate("không tìm thấy chính sách hiệu lực cho ngày xử lý")
+    active = next((p for p in policies if p.get("index_active")), None)
+    if active and active["policy_id"] != pol["policy_id"]:
+        ctx.log("stale_policy_overridden", index_active=active["policy_id"], effective=pol["policy_id"], as_of=ctx.as_of)
     return Verdict.allow(policy_id=pol["policy_id"])
 
 
@@ -116,7 +120,7 @@ def write_gate(ctx, action):
                 ctx.log("invalid_approval_escalated", order_id=order_id, approval_id=approval_id, expected=expected)
                 return Verdict.escalate("vượt hạn mức tự động và không có phê duyệt hợp lệ cho ticket này")
         else:
-            # Kiểm tra các trần Ops cho giao dịch tự động (chỉ áp dụng khi không có phê duyệt riêng)
+            # Kiểm tra trần hoàn tự động mỗi khách trong ngày (trước khi ghi tiền)
             lim = ctx.tools.ops_limits()
             cust_cap = lim.get("max_auto_refund_per_customer_per_day_vnd")
             if cust_cap is not None:
@@ -129,20 +133,13 @@ def write_gate(ctx, action):
                     ctx.log("customer_daily_cap_escalated", customer_id=order["customer_id"], today=cust_today, asked=expected)
                     return Verdict.escalate("vượt trần hoàn tự động mỗi khách trong ngày")
 
-            max_strikes = lim.get("max_auto_strikes_per_carrier_per_day")
-            if max_strikes is not None and H.carrier_at_fault(pol, parcel, db_delay):
-                strikes_today = len(ctx.tools.fault_rows(carrier_id=parcel["carrier_id"]))
-                if strikes_today >= max_strikes:
-                    ctx.log("carrier_strike_cap_escalated", carrier_id=parcel["carrier_id"], strikes_today=strikes_today)
-                    return Verdict.escalate("đạt trần số lỗi tự động mỗi hãng trong ngày: chuyển người duyệt")
-
         if action["amount_vnd"] != expected:
             ctx.log("refund_amount_corrected", order_id=order_id, asked=action["amount_vnd"], expected=expected)
             return Verdict.modify("điều chỉnh số tiền hoàn khớp tracking DB và chính sách hiệu lực",
                                   amount_vnd=expected, payer="LOGIX")
         return Verdict.allow()
 
-    # Cổng 3 (vòng 1): bảo vệ bên thứ ba (hãng vận chuyển & dữ liệu cá nhân người nhận)
+    # Cổng 3 (vòng 1 + nâng cấp vòng 2 cho S3): bảo vệ bên thứ ba (hãng vận chuyển & dữ liệu cá nhân người nhận)
     if tool == "file_carrier_fault":
         order = ctx.tools.lookup_order(action["order_id"])
         if order is None:
@@ -160,6 +157,16 @@ def write_gate(ctx, action):
         if ctx.tools.fault_rows(order_id=action["order_id"], parcel_id=parcel["parcel_id"]):
             ctx.log("duplicate_fault_denied", order_id=action["order_id"], parcel_id=parcel["parcel_id"])
             return Verdict.deny("kiện hàng này đã được ghi lỗi trước đó")
+
+        # Vòng 2 (S3): áp trần lỗi tự động/hãng/ngày ngay tại bước file_carrier_fault (từ lỗi thứ 3 trở đi
+        # chặn ghi lỗi tự động để chờ người duyệt, nhưng KHÔNG chặn khoản hoàn hợp lệ của khách và không làm ùn hàng chờ)
+        max_strikes = ctx.tools.ops_limits().get("max_auto_strikes_per_carrier_per_day")
+        if max_strikes is not None:
+            strikes_today = len(ctx.tools.fault_rows(carrier_id=parcel["carrier_id"]))
+            if strikes_today >= max_strikes:
+                ctx.log("carrier_strike_cap_denied", carrier_id=parcel["carrier_id"],
+                        strikes_today=strikes_today, limit=max_strikes)
+                return Verdict.deny("đạt trần số lỗi tự động mỗi hãng trong ngày: giữ lại chờ người duyệt")
 
         # Đảm bảo ghi đúng kiện trễ, đúng hãng, đúng tài xế và đúng số ngày trễ theo DB
         if (
