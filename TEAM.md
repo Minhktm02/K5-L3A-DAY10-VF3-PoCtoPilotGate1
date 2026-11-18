@@ -1,10 +1,10 @@
 # Team
-
+VF3
 ## Thông tin nhóm
 
 - Tên nhóm (`TenNhom`, không dấu, không khoảng trắng):
-- Lớp: `L3A` / `L3B`
-- Repo của bàn: `K5-<L3A|L3B>-DAY10-<TenNhom>-PoCtoPilotGate1`
+- Lớp: `L3A`
+- Repo của bàn: `(https://github.com/Minhktm02/K5-L3A-DAY10-VF3-PoCtoPilotGate1)`
 - Thẻ sự cố đã bốc (S1–S8):
 
 ## Thành viên
@@ -13,10 +13,9 @@ Họ tên đầy đủ và MSSV của **mọi** thành viên; thêm dòng nếu 
 
 | STT | Họ và tên | MSSV | Vai | Trưởng nhóm |
 | --: | --------- | ---- | --- | :---------: |
-|   1 |           |      |     |             |
-|   2 |           |      |     |             |
-|   3 |           |      |     |             |
-|   4 |           |      |     |             |
+|   1 |Trương Việt Công|2A202603585|Vận Hành và Pháp Lý | X |
+|   2 |Khuất Tiến Minh |2A202603616|Kỹ Sư Cổng|  |
+|   3 |Đào Quang Huy   |2A202603642|Sản Phẩm và Kinh Doanh| |
 
 Ghi `members` trong `submission/submission.json` theo dạng `"HoVaTen-MSSV"`, khớp bảng trên.
 
