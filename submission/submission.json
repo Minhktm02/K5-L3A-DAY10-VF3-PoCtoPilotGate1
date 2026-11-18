@@ -1,6 +1,10 @@
 {
-  "team": "",
-  "members": [],
+  "team": "VF3",
+  "members": [
+    "TruongVietCong-2A202603585",
+    "KhuatTienMinh-2A202603616",
+    "DaoQuangHuy-2A202603642"
+  ],
   "incident": "",
   "decision_v1": "",
   "decision_v2": "",
